@@ -10,7 +10,8 @@ const sellerRoutes = require('./routes/seller');
 const managerRoutes = require('./routes/manager');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Google Cloud sử dụng PORT 8080 mặc định
+const PORT = process.env.PORT || 8080;
 
 // Kết nối MongoDB
 connectDB();
@@ -19,6 +20,15 @@ connectDB();
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON body
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded body
+
+// Health check endpoint (for Cloud Run/App Engine)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
 
 // Routes
 app.get('/', (req, res) => {
@@ -30,7 +40,8 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       buyer: '/api/buyer',
       seller: '/api/seller',
-      manager: '/api/manager'
+      manager: '/api/manager',
+      health: '/health'
     }
   });
 });
@@ -59,7 +70,8 @@ app.use((err, req, res, next) => {
 });
 
 // Khởi động server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌍 Ready to accept connections`);
 });
