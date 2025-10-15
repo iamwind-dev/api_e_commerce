@@ -2,6 +2,7 @@ runtime: nodejs20
 
 env: flexible
 
+
 instance_class: F1
 
 automatic_scaling:
