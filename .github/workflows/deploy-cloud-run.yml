@@ -47,5 +47,5 @@ jobs:
 
       - name: Deploy to App Engine
 
-        run: gcloud app deploy app.yaml --verbosity= debug
+        run: gcloud app deploy app.yaml --quiet
 
