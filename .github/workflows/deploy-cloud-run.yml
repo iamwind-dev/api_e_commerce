@@ -46,9 +46,6 @@ jobs:
           EOF
 
       - name: Deploy to App Engine
-<<<<<<< HEAD
-        run: gcloud app deploy app.yaml --quiet
 
-=======
         run: gcloud app deploy app.yaml 
->>>>>>> 714576af91dc0ce9318521978ae7e106d9e9fc70
+
