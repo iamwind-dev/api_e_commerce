@@ -24,5 +24,27 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      - name: Create app.yaml with secrets
+        run: |
+          cat > app.yaml << EOF
+          runtime: nodejs20
+          
+          env: standard
+          
+          instance_class: F1
+          
+          automatic_scaling:
+            min_instances: 0
+            max_instances: 5
+            target_cpu_utilization: 0.65
+          
+          env_variables:
+            MONGODB_URI: "${{ secrets.MONGODB_URI }}"
+            JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+            NODE_ENV: "production"
+            PORT: "8080"
+          EOF
+
       - name: Deploy to App Engine
         run: gcloud app deploy app.yaml --quiet
+
