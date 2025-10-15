@@ -26,17 +26,8 @@ jobs:
 
       - name: Create app.yaml with secrets
         run: |
-          cat > app.yaml << EOF
+          cat > app.yaml << 'EOF'
           runtime: nodejs20
-          
-          env: standard
-          
-          instance_class: F1
-          
-          automatic_scaling:
-            min_instances: 0
-            max_instances: 5
-            target_cpu_utilization: 0.65
           
           env_variables:
             MONGODB_URI: "${{ secrets.MONGODB_URI }}"
@@ -45,7 +36,12 @@ jobs:
             PORT: "8080"
           EOF
 
-      - name: Deploy to App Engine
+      - name: Show app.yaml (debug)
+        run: |
+          echo "=== app.yaml content ==="
+          cat app.yaml
+          echo "========================"
 
-        run: gcloud app deploy app.yaml --quiet
+      - name: Deploy to App Engine
+        run: gcloud app deploy app.yaml --quiet --verbosity=debug
 
