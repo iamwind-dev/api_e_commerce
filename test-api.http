@@ -1,0 +1,203 @@
+# TEST API - Online Market Server
+# Copy từng lệnh để test trong terminal hoặc Postman
+
+# ===========================================
+# 1. ĐĂNG KÝ USERS
+# ===========================================
+
+# Đăng ký Buyer
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "phone": "0987654321",
+  "email": "buyer@test.com",
+  "username": "buyer01",
+  "name": "Nguyễn Văn Buyer",
+  "password": "123456",
+  "role": "buyer"
+}
+
+###
+
+# Đăng ký Seller (status sẽ là "pending")
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "phone": "0123456789",
+  "email": "seller@test.com",
+  "username": "seller01",
+  "name": "Trần Thị Seller",
+  "password": "123456",
+  "role": "seller"
+}
+
+###
+
+# Đăng ký Manager
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "phone": "0111222333",
+  "email": "manager@test.com",
+  "username": "manager01",
+  "name": "Lê Văn Manager",
+  "password": "123456",
+  "role": "manager"
+}
+
+###
+
+# ===========================================
+# 2. LOGIN
+# ===========================================
+
+# Login Buyer (lưu token để dùng)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "buyer01",
+  "password": "123456"
+}
+
+###
+
+# Login Seller - SẼ FAIL vì status = "pending"
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "seller01",
+  "password": "123456"
+}
+
+###
+
+# Login Manager
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "manager01",
+  "password": "123456"
+}
+
+###
+
+# ===========================================
+# 3. TEST BUYER ROUTES (cần token của buyer)
+# ===========================================
+
+# Get Buyer Profile
+GET http://localhost:3000/api/buyer/profile
+Authorization: Bearer YOUR_BUYER_TOKEN_HERE
+
+###
+
+# Get Orders
+GET http://localhost:3000/api/buyer/orders
+Authorization: Bearer YOUR_BUYER_TOKEN_HERE
+
+###
+
+# ===========================================
+# 4. TEST MANAGER ROUTES (cần token của manager)
+# ===========================================
+
+# Get Dashboard
+GET http://localhost:3000/api/manager/dashboard
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+###
+
+# Get Pending Sellers
+GET http://localhost:3000/api/manager/pending-sellers
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+###
+
+# Approve Seller (thay SELLER_ID bằng _id thật)
+POST http://localhost:3000/api/manager/approve-seller/SELLER_ID
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+###
+
+# Get All Users
+GET http://localhost:3000/api/manager/users
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+###
+
+# Get Users by role
+GET http://localhost:3000/api/manager/users?role=seller
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+###
+
+# ===========================================
+# 5. TEST SELLER ROUTES (sau khi được approve)
+# ===========================================
+
+# Login lại Seller sau khi được approve
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "seller01",
+  "password": "123456"
+}
+
+###
+
+# Get Products
+GET http://localhost:3000/api/seller/products
+Authorization: Bearer YOUR_SELLER_TOKEN_HERE
+
+###
+
+# Create Product
+POST http://localhost:3000/api/seller/products
+Authorization: Bearer YOUR_SELLER_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "name": "iPhone 15 Pro Max"
+}
+
+###
+
+# Get Dashboard
+GET http://localhost:3000/api/seller/dashboard
+Authorization: Bearer YOUR_SELLER_TOKEN_HERE
+
+###
+
+# ===========================================
+# 6. TEST PHÂN QUYỀN (Authorization)
+# ===========================================
+
+# Buyer cố truy cập route của Seller - SẼ FAIL
+GET http://localhost:3000/api/seller/products
+Authorization: Bearer YOUR_BUYER_TOKEN_HERE
+
+###
+
+# Seller cố truy cập route của Manager - SẼ FAIL
+GET http://localhost:3000/api/manager/dashboard
+Authorization: Bearer YOUR_SELLER_TOKEN_HERE
+
+###
+
+# Không có token - SẼ FAIL
+GET http://localhost:3000/api/buyer/profile
+
+###
+
+# Token sai - SẼ FAIL
+GET http://localhost:3000/api/buyer/profile
+Authorization: Bearer invalid_token_here
+
+###
