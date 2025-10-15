@@ -10,7 +10,7 @@ automatic_scaling:
   target_cpu_utilization: 0.65
 
 env_variables:
-  MONGODB_URI: "mongodb+srv://duongdinh3067_db_user:<db_password>@market-online.fmvsyvi.mongodb.net/?retryWrites=true&w=majority&appName=market-online"
+  MONGODB_URI: "mongodb+srv://duongdinh3067_db_user:WinD060304@market-online.fmvsyvi.mongodb.net/?retryWrites=true&w=majority&appName=market-online"
   JWT_SECRET: "69cc6a24f56d30cc874697979890b4d545607d2fd1b7073b5a3614d8279b7ac7735811b8dfd64822c161934132f34df0ddf9bb050e7336f7f15936ab530584dd"
   NODE_ENV: "production"
   PORT: "8080"

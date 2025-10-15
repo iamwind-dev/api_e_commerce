@@ -53,6 +53,33 @@ const userSchema = new mongoose.Schema(
         message: 'Status phải là pending hoặc approved'
       },
       default: 'approved'
+    },
+    // Các trường bổ sung - không bắt buộc
+    height: {
+      type: Number,
+      min: [0, 'Chiều cao phải lớn hơn 0'],
+      max: [300, 'Chiều cao không hợp lệ'],
+      required: false
+    },
+    weight: {
+      type: Number,
+      min: [0, 'Cân nặng phải lớn hơn 0'],
+      max: [500, 'Cân nặng không hợp lệ'],
+      required: false
+    },
+    gender: {
+      type: String,
+      enum: {
+        values: ['male', 'female', 'other'],
+        message: 'Giới tính phải là male, female hoặc other'
+      },
+      required: false
+    },
+    address: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Địa chỉ không được vượt quá 500 ký tự'],
+      required: false
     }
   },
   {
