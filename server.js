@@ -8,10 +8,11 @@ const authRoutes = require('./routes/auth');
 const buyerRoutes = require('./routes/buyer');
 const sellerRoutes = require('./routes/seller');
 const managerRoutes = require('./routes/manager');
+const foodRoutes = require('./routes/food');
 
 const app = express();
 // Google Cloud sử dụng PORT 8080 mặc định
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // Kết nối MongoDB
 connectDB();
@@ -41,6 +42,7 @@ app.get('/', (req, res) => {
       buyer: '/api/buyer',
       seller: '/api/seller',
       manager: '/api/manager',
+      foods: '/api/foods',
       health: '/health'
     }
   });
@@ -51,6 +53,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/buyer', buyerRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/manager', managerRoutes);
+app.use('/api/foods', foodRoutes);
 
 // 404 Handler
 app.use((req, res) => {

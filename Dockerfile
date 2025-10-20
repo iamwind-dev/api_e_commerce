@@ -16,5 +16,9 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
-# Chạy ứng dụng
-CMD ["npm", "start"]
+# Copy startup script
+COPY startup.sh ./
+RUN chmod +x startup.sh
+
+# Chạy startup script (seed data + start server)
+CMD ["./startup.sh"]
