@@ -4,6 +4,86 @@ const Food = require('../models/Food');
 const Category = require('../models/Category');
 
 /**
+ * @route   GET /api/foods/search
+ * @desc    Tìm kiếm món ăn theo keyword (name, description, ingredients)
+ * @access  Public
+ * @query   keyword, category, difficulty, page, limit
+ */
+router.get('/search', async (req, res) => {
+  try {
+    const { 
+      keyword = '', 
+      category,
+      difficulty,
+      page = 1, 
+      limit = 10 
+    } = req.query;
+    
+    // Validate page và limit
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    
+    // Build query filter
+    const filter = {};
+    
+    // Tìm kiếm theo keyword (regex không phân biệt hoa thường)
+    if (keyword && keyword.trim()) {
+      const keywordRegex = new RegExp(keyword.trim(), 'i');
+      filter.$or = [
+        { name: keywordRegex },
+        { description: keywordRegex },
+        { ingredients: keywordRegex },
+        { steps: keywordRegex }
+      ];
+    }
+    
+    // Filter theo category
+    if (category) {
+      filter.categories = category;
+    }
+    
+    // Filter theo difficulty
+    if (difficulty && ['Dễ', 'Trung bình', 'Khó'].includes(difficulty)) {
+      filter.difficulty = difficulty;
+    }
+
+    // Tính skip
+    const skip = (pageNum - 1) * limitNum;
+
+    // Query database
+    const foods = await Food.find(filter)
+      .populate('categories', 'name')
+      .select('name description categories time difficulty image calories portion link')
+      .skip(skip)
+      .limit(limitNum)
+      .sort({ createdAt: -1 });
+
+    // Đếm tổng số documents
+    const totalItems = await Food.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / limitNum);
+
+    res.json({
+      success: true,
+      keyword: keyword || null,
+      category: category || null,
+      difficulty: difficulty || null,
+      page: pageNum,
+      totalPages,
+      totalItems,
+      data: foods
+    });
+
+  } catch (error) {
+    console.error('Error searching foods:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi tìm kiếm món ăn',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/foods
  * @desc    Lấy danh sách món ăn với phân trang và filter theo category
  * @access  Public

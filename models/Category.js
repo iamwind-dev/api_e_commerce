@@ -11,8 +11,7 @@ const categorySchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index để tìm kiếm nhanh
-categorySchema.index({ name: 1 });
+// Note: unique: true tự động tạo index, không cần thêm index({ name: 1 })
 
 const Category = mongoose.model('Category', categorySchema);
 

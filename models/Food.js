@@ -6,6 +6,10 @@ const foodSchema = new mongoose.Schema({
     required: [true, 'Tên món ăn là bắt buộc'],
     trim: true
   },
+  description: {
+    type: String,
+    trim: true
+  },
   link: {
     type: String,
     trim: true
@@ -62,6 +66,13 @@ const foodSchema = new mongoose.Schema({
 foodSchema.index({ name: 1 });
 foodSchema.index({ categories: 1 });
 foodSchema.index({ difficulty: 1 });
+
+// Text index cho full-text search
+foodSchema.index({ 
+  name: 'text', 
+  description: 'text',
+  ingredients: 'text'
+});
 
 const Food = mongoose.model('Food', foodSchema);
 

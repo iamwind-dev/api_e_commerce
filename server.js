@@ -9,6 +9,8 @@ const buyerRoutes = require('./routes/buyer');
 const sellerRoutes = require('./routes/seller');
 const managerRoutes = require('./routes/manager');
 const foodRoutes = require('./routes/food');
+const ingredientRoutes = require('./routes/ingredient');
+const categoryRoutes = require('./routes/category');
 
 const app = express();
 // Google Cloud sử dụng PORT 8080 mặc định
@@ -21,6 +23,7 @@ connectDB();
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON body
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded body
+app.use(express.static(require('path').join(__dirname, 'public'))); // Serve static homepage
 
 // Health check endpoint (for Cloud Run/App Engine)
 app.get('/health', (req, res) => {
@@ -31,8 +34,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Routes
+// Simple homepage (served statically); keep machine-readable list at /api/endpoints
 app.get('/', (req, res) => {
+  res.sendFile(require('path').join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/api/endpoints', (req, res) => {
   res.json({
     success: true,
     message: 'Welcome to Online Market API',
@@ -43,6 +50,13 @@ app.get('/', (req, res) => {
       seller: '/api/seller',
       manager: '/api/manager',
       foods: '/api/foods',
+      ingredients: '/api/ingredients',
+      categories: '/api/categories',
+      search: {
+        foods: '/api/foods/search?keyword=bánh',
+        ingredients: '/api/ingredients/search?keyword=thịt',
+        categories: '/api/categories/search?keyword=ăn vặt'
+      },
       health: '/health'
     }
   });
@@ -54,6 +68,8 @@ app.use('/api/buyer', buyerRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/manager', managerRoutes);
 app.use('/api/foods', foodRoutes);
+app.use('/api/ingredients', ingredientRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // 404 Handler
 app.use((req, res) => {
