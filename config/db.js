@@ -1,4 +1,3 @@
-// config/db.js
 const { PrismaClient } = require("@prisma/client");
 
 let prisma;

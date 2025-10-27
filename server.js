@@ -1,8 +1,14 @@
 // server.js
-require("dotenv").config();
+// Load module aliases first
+require('module-alias/register');
+require('./module-alias');
+
+// Then load environment variables
+require('dotenv').config();
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { connectDB, prisma } = require("./config/db");
 
 // Swagger
@@ -19,9 +25,17 @@ connectDB().catch((err) => {
   process.exit(1);
 });
 
-app.use(cors());
+app.set("trust proxy", 1);
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || true,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Health & DB ping

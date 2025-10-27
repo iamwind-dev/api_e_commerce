@@ -10,4 +10,7 @@ router.post("/register", validate(schema.register), ctr.register);
 router.post("/login", validate(schema.login), ctr.login);
 router.get("/me", auth, ctr.me);
 
+router.post("/refresh", ctr.refresh);
+router.post("/logout", ctr.logout);
+
 module.exports = router;
