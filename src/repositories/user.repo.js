@@ -28,7 +28,6 @@ async function createUserWithRole(payload) {
     ma_quan_ly,
     vi_tri,
   } = payload;
-
   return prisma.$transaction(async (tx) => {
     const ma_nguoi_dung = await genId(6, "ND");
 
@@ -44,6 +43,7 @@ async function createUserWithRole(payload) {
         ngan_hang: ngan_hang || "",
         sdt: sdt || "",
         dia_chi: dia_chi || "",
+        tinh_trang: false,
       },
     });
 

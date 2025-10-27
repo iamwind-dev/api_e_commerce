@@ -86,7 +86,7 @@ model gian_hang {
   ten_gian_hang String         @db.VarChar(255)
   ma_cho        String         @db.VarChar(5)
   ma_nguoi_dung String         @db.VarChar(6)
-  ma_quan_ly    String         @db.VarChar(8)
+  ma_quan_ly    String?        @db.VarChar(8)
   vi_tri        String         @db.VarChar(255)
   hinh_anh      String?        @db.Text
   danh_gia_tb   Float?         @db.Float
@@ -94,7 +94,7 @@ model gian_hang {
   danh_gia_list danh_gia[]
   cho_table     cho_table      @relation(fields: [ma_cho], references: [ma_cho], map: "fk_gianhang_cho")
   nguoi_dung    nguoi_dung     @relation(fields: [ma_nguoi_dung], references: [ma_nguoi_dung], map: "fk_gianhang_nguoidung")
-  quan_ly_cho   quan_ly_cho    @relation(fields: [ma_quan_ly], references: [ma_quan_ly], map: "fk_gianhang_quanlycho")
+  quan_ly_cho   quan_ly_cho?   @relation(fields: [ma_quan_ly], references: [ma_quan_ly], onDelete: Restrict, map: "fk_gianhang_quanlycho")
   san_pham_ban  san_pham_ban[]
 
   @@index([ma_cho], map: "fk_gianhang_cho")
@@ -160,6 +160,7 @@ model nguoi_dung {
   sdt            String        @db.Char(10)
   ngan_hang      String        @db.VarChar(255)
   dia_chi        String        @db.VarChar(255)
+  tinh_trang     Boolean?      @default(false)
   gian_hang      gian_hang[]
   nguoi_mua      nguoi_mua[]
   quan_ly_cho    quan_ly_cho[]

@@ -1,15 +1,17 @@
-const jwt = require("jsonwebtoken");
-const { hashPassword, comparePassword } = require("../utils/password");
+const { hashPassword, comparePassword } = require("@utils/password");
+const {
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+} = require("@utils/jwt");
+const { setRefreshCookie, clearRefreshCookie } = require("@utils/cookie");
 const {
   createUserWithRole,
   findUserByUsername,
   getUserById,
-} = require("../repositories/user.repo");
+} = require("@repositories/user.repo");
 
-function signToken(payload) {
-  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
-}
-
+// REGISTER
 exports.register = async (req, res) => {
   try {
     const {
@@ -45,7 +47,7 @@ exports.register = async (req, res) => {
 
     const hashed = await hashPassword(mat_khau);
 
-    const data = await createUserWithRole({
+    const created = await createUserWithRole({
       ten_dang_nhap,
       mat_khau: hashed,
       ten_nguoi_dung,
@@ -63,20 +65,28 @@ exports.register = async (req, res) => {
       vi_tri,
     });
 
-    const token = signToken({
-      sub: data.ma_nguoi_dung,
-      ma_nguoi_dung: data.ma_nguoi_dung,
-      vai_tro: data.role,
-      ten_dang_nhap: data.ten_dang_nhap,
-    });
+    const payload = {
+      sub: created.ma_nguoi_dung,
+      ma_nguoi_dung: created.ma_nguoi_dung,
+      vai_tro: created.role,
+      ten_dang_nhap: created.ten_dang_nhap,
+    };
 
-    return res.status(201).json({ data, token });
+    const accessToken = signAccessToken(payload);
+    const refreshToken = signRefreshToken({
+      sub: payload.sub,
+      ten_dang_nhap: payload.ten_dang_nhap,
+    });
+    setRefreshCookie(res, refreshToken);
+
+    return res.status(201).json({ data: payload, token: accessToken });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: err.message || "Lỗi hệ thống" });
   }
 };
 
+// LOGIN
 exports.login = async (req, res) => {
   try {
     const { ten_dang_nhap, mat_khau } = req.body || {};
@@ -91,31 +101,31 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Sai thông tin đăng nhập" });
 
     const ok = await comparePassword(mat_khau, user.mat_khau);
-
     if (!ok)
       return res.status(401).json({ message: "Sai thông tin đăng nhập" });
 
-    const token = signToken({
+    const payload = {
       sub: user.ma_nguoi_dung,
       ma_nguoi_dung: user.ma_nguoi_dung,
       vai_tro: user.vai_tro,
       ten_dang_nhap,
-    });
+    };
 
-    return res.json({
-      data: {
-        ma_nguoi_dung: user.ma_nguoi_dung,
-        ten_dang_nhap,
-        vai_tro: user.vai_tro,
-      },
-      token,
+    const accessToken = signAccessToken(payload);
+    const refreshToken = signRefreshToken({
+      sub: payload.sub,
+      ten_dang_nhap: payload.ten_dang_nhap,
     });
+    setRefreshCookie(res, refreshToken);
+
+    return res.json({ data: payload, token: accessToken });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
 };
 
+// ME
 exports.me = async (req, res) => {
   try {
     const me = await getUserById(req.user.ma_nguoi_dung);
@@ -126,4 +136,47 @@ exports.me = async (req, res) => {
     console.error(err);
     return res.status(500).json({ message: "Lỗi hệ thống" });
   }
+};
+
+// REFRESH ACCESS TOKEN
+exports.refresh = async (req, res) => {
+  try {
+    const rt = req.cookies?.rt;
+    if (!rt) return res.status(401).json({ message: "Missing refresh token" });
+
+    let decoded;
+    try {
+      decoded = verifyRefreshToken(rt);
+    } catch {
+      return res.status(401).json({ message: "Invalid/expired refresh token" });
+    }
+
+    const me = await getUserById(decoded.sub);
+    if (!me) return res.status(401).json({ message: "User not found" });
+
+    const payload = {
+      sub: me.ma_nguoi_dung,
+      ma_nguoi_dung: me.ma_nguoi_dung,
+      vai_tro: me.vai_tro,
+      ten_dang_nhap: me.ten_dang_nhap,
+    };
+
+    const newAT = signAccessToken(payload);
+    const newRT = signRefreshToken({
+      sub: payload.sub,
+      ten_dang_nhap: payload.ten_dang_nhap,
+    });
+    setRefreshCookie(res, newRT);
+
+    return res.json({ token: newAT });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Lỗi hệ thống" });
+  }
+};
+
+// LOGOUT
+exports.logout = async (_req, res) => {
+  clearRefreshCookie(res);
+  return res.json({ message: "Đã đăng xuất" });
 };

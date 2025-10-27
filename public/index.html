@@ -13,7 +13,6 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <style>
-      /* Market Animation */
       .market-animation {
         position: relative;
         height: 300px;
@@ -586,7 +585,6 @@
     </div>
 
     <script>
-      // Add animation on scroll
       document.addEventListener("DOMContentLoaded", () => {
         const cards = document.querySelectorAll(".card");
 
@@ -606,7 +604,6 @@
           observer.observe(card);
         });
 
-        // Add hover effect to cards
         cards.forEach((card) => {
           card.addEventListener("mouseenter", () => {
             card.style.transform = "translateY(-5px)";
