@@ -1,0 +1,130 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Online Market Auth API", "version": "1.0.1" },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/db/ping": {
+      "get": {
+        "summary": "DB ping",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Đăng ký (1 endpoint cho 3 role)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/RegisterNguoiMua" },
+                  { "$ref": "#/components/schemas/RegisterShipper" },
+                  { "$ref": "#/components/schemas/RegisterGianHang" }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Created" },
+          "400": { "description": "Bad Request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Đăng nhập",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["ten_dang_nhap", "mat_khau"],
+                "properties": {
+                  "ten_dang_nhap": { "type": "string" },
+                  "mat_khau": { "type": "string", "minLength": 6 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Thông tin người dùng hiện tại",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "BaseRegister": {
+        "type": "object",
+        "required": ["ten_dang_nhap", "mat_khau", "ten_nguoi_dung", "role"],
+        "properties": {
+          "ten_dang_nhap": { "type": "string" },
+          "mat_khau": { "type": "string", "minLength": 8 },
+          "ten_nguoi_dung": { "type": "string" },
+          "role": {
+            "type": "string",
+            "enum": ["nguoi_mua", "shipper", "gian_hang"]
+          },
+          "gioi_tinh": { "type": "string", "enum": ["M", "F"] },
+          "so_tai_khoan": { "type": "string" },
+          "ngan_hang": { "type": "string" },
+          "sdt": { "type": "string" },
+          "dia_chi": { "type": "string" }
+        }
+      },
+      "RegisterNguoiMua": {
+        "allOf": [{ "$ref": "#/components/schemas/BaseRegister" }],
+        "properties": { "role": { "enum": ["nguoi_mua"] } }
+      },
+      "RegisterShipper": {
+        "allOf": [{ "$ref": "#/components/schemas/BaseRegister" }],
+        "required": ["bien_so_xe"],
+        "properties": {
+          "role": { "enum": ["shipper"] },
+          "bien_so_xe": { "type": "string" },
+          "phuong_tien": { "type": "string" }
+        }
+      },
+      "RegisterGianHang": {
+        "allOf": [{ "$ref": "#/components/schemas/BaseRegister" }],
+        "required": ["ten_gian_hang", "ma_cho", "ma_quan_ly", "vi_tri"],
+        "properties": {
+          "role": { "enum": ["gian_hang"] },
+          "ten_gian_hang": { "type": "string" },
+          "ma_cho": { "type": "string" },
+          "ma_quan_ly": { "type": "string" },
+          "vi_tri": { "type": "string" }
+        }
+      }
+    }
+  }
+}

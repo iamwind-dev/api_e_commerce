@@ -43,3 +43,5 @@ Thumbs.db
 
 # History
 .history/
+
+/generated/prisma

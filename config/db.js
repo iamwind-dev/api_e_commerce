@@ -1,18 +1,17 @@
-const mongoose = require('mongoose');
+// config/db.js
+const { PrismaClient } = require("@prisma/client");
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // Các options này đã deprecated trong mongoose v6+, không cần thiết nữa
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
-    });
+let prisma;
+if (process.env.NODE_ENV === "production") {
+  prisma = new PrismaClient();
+} else {
+  if (!global.__PRISMA__) global.__PRISMA__ = new PrismaClient();
+  prisma = global.__PRISMA__;
+}
 
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`❌ Error connecting to MongoDB: ${error.message}`);
-    process.exit(1); // Exit với failure code
-  }
-};
+async function connectDB() {
+  await prisma.$queryRaw`SELECT 1`;
+  console.log("✅ Connected to MySQL (Cloud SQL) via Prisma");
+}
 
-module.exports = connectDB;
+module.exports = { prisma, connectDB };
