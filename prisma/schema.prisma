@@ -7,21 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  user
-  buyer
-  seller
-  shipper
-  admin
-  manager
-}
-
-enum AccountStatus {
-  approved
-  pending
-  banned
-}
-
 model chi_tiet_don_hang {
   ma_don_hang     String @db.VarChar(10)
   ma_nguyen_lieu  String @db.VarChar(10)
@@ -37,9 +22,9 @@ model chi_tiet_don_hang {
 
 model cho_table {
   ma_cho      String        @id @db.VarChar(5)
-  ten_cho     String        @db.VarChar(100)
+  ten_cho     String        @db.VarChar(255)
   ma_khu_vuc  String        @db.VarChar(4)
-  khu_vuc     String        @db.VarChar(50)
+  khu_vuc     String        @db.VarChar(255)
   dia_chi     String        @db.VarChar(255)
   hinh_anh    String?       @db.Text
   gian_hang   gian_hang[]
@@ -51,7 +36,7 @@ model cong_thuc_mon_an {
   ma_mon_an       String      @db.VarChar(5)
   ma_nguyen_lieu  String      @db.VarChar(10)
   ten_nguyen_lieu String?     @db.VarChar(255)
-  dinh_luong      String?     @db.VarChar(100)
+  dinh_luong      String?     @db.VarChar(255)
   mon_an          mon_an      @relation(fields: [ma_mon_an], references: [ma_mon_an], map: "fk_congthuc_monan")
   nguyen_lieu     nguyen_lieu @relation(fields: [ma_nguyen_lieu], references: [ma_nguyen_lieu], map: "fk_congthuc_nguyenlieu")
 
@@ -75,8 +60,8 @@ model danh_gia {
 
 model danh_muc_mon_an {
   ma_danh_muc_mon_an  String             @id @db.VarChar(4)
-  ten_danh_muc_mon_an String             @db.VarChar(100)
-  loai_danh_muc       String             @db.VarChar(50)
+  ten_danh_muc_mon_an String             @db.VarChar(255)
+  loai_danh_muc       String             @db.VarChar(255)
   phan_loai_mon_an    phan_loai_mon_an[]
 }
 
@@ -86,7 +71,7 @@ model don_hang {
   ma_nguoi_mua        String     @db.VarChar(8)
   tong_tien           Int
   dia_chi_giao_hang   String     @db.VarChar(255)
-  tinh_trang_don_hang String     @db.VarChar(50)
+  tinh_trang_don_hang String     @db.VarChar(255)
   thoi_gian_giao_hang DateTime   @db.DateTime(0)
   nguoi_mua           nguoi_mua  @relation(fields: [ma_nguoi_mua], references: [ma_nguoi_mua], map: "fk_donhang_nguoimua")
   thanh_toan          thanh_toan @relation(fields: [ma_thanh_toan], references: [ma_thanh_toan], map: "fk_donhang_thanhtoan")
@@ -98,11 +83,11 @@ model don_hang {
 
 model gian_hang {
   ma_gian_hang  String         @id @db.VarChar(8)
-  ten_gian_hang String         @db.VarChar(100)
+  ten_gian_hang String         @db.VarChar(255)
   ma_cho        String         @db.VarChar(5)
   ma_nguoi_dung String         @db.VarChar(6)
   ma_quan_ly    String         @db.VarChar(8)
-  vi_tri        String         @db.VarChar(100)
+  vi_tri        String         @db.VarChar(255)
   hinh_anh      String?        @db.Text
   danh_gia_tb   Float?         @db.Float
   ngay_dang_ky  DateTime       @db.Date
@@ -136,7 +121,7 @@ model gom_don {
 
 model khu_vuc {
   ma_khu_vuc String    @id @db.VarChar(4)
-  phuong     String    @db.VarChar(100)
+  phuong     String    @db.VarChar(255)
   longitude  Float?    @db.Float
   latitude   Float?    @db.Float
   gom_don    gom_don[]
@@ -151,10 +136,10 @@ model khung_gio {
 
 model mon_an {
   ma_mon_an            String             @id @db.VarChar(5)
-  ten_mon_an           String             @db.VarChar(100)
+  ten_mon_an           String             @db.VarChar(255)
   hinh_anh             String?            @db.Text
-  khoang_thoi_gian     Int
-  do_kho               String?            @db.VarChar(50)
+  khoang_thoi_gian     Int?
+  do_kho               String?            @db.VarChar(255)
   khau_phan_tieu_chuan Int
   cach_thuc_hien       String             @db.Text
   so_che               String?            @db.Text
@@ -166,15 +151,15 @@ model mon_an {
 
 model nguoi_dung {
   ma_nguoi_dung  String        @id @db.VarChar(6)
-  ten_dang_nhap  String        @db.VarChar(10)
-  ten_nguoi_dung String        @db.VarChar(50)
+  ten_dang_nhap  String        @db.VarChar(255)
+  ten_nguoi_dung String        @db.VarChar(255)
   mat_khau       String        @db.VarChar(255)
-  vai_tro        String        @db.VarChar(50)
+  vai_tro        String        @db.VarChar(255)
   gioi_tinh      String        @db.Char(1)
-  so_tai_khoan   String        @db.VarChar(20)
+  so_tai_khoan   String        @db.VarChar(255)
   sdt            String        @db.Char(10)
-  ngan_hang      String        @db.VarChar(50)
-  dia_chi        String        @db.VarChar(100)
+  ngan_hang      String        @db.VarChar(255)
+  dia_chi        String        @db.VarChar(255)
   gian_hang      gian_hang[]
   nguoi_mua      nguoi_mua[]
   quan_ly_cho    quan_ly_cho[]
@@ -197,7 +182,7 @@ model nguyen_lieu {
   ma_nguyen_lieu      String             @id @db.VarChar(10)
   ten_nguyen_lieu     String             @db.VarChar(255)
   ma_nhom_nguyen_lieu String             @db.VarChar(3)
-  don_vi              String?            @db.VarChar(10)
+  don_vi              String?            @db.VarChar(255)
   cong_thuc_mon_an    cong_thuc_mon_an[]
   nhom_nguyen_lieu    nhom_nguyen_lieu   @relation(fields: [ma_nhom_nguyen_lieu], references: [ma_nhom_nguyen_lieu], map: "fk_nguyenlieu_nhomnguyenlieu")
   san_pham_ban        san_pham_ban[]
@@ -207,8 +192,8 @@ model nguyen_lieu {
 
 model nhom_nguyen_lieu {
   ma_nhom_nguyen_lieu   String        @id @db.VarChar(3)
-  ten_nhom_nguyen_lieu  String        @db.VarChar(100)
-  loai_nhom_nguyen_lieu String        @db.VarChar(100)
+  ten_nhom_nguyen_lieu  String        @db.VarChar(255)
+  loai_nhom_nguyen_lieu String        @db.VarChar(255)
   nguyen_lieu           nguyen_lieu[]
 }
 
@@ -274,8 +259,8 @@ model san_pham_ban {
 model shipper {
   ma_shipper    String     @id @db.VarChar(8)
   ma_nguoi_dung String     @db.VarChar(6)
-  phuong_tien   String?    @db.VarChar(50)
-  bien_so_xe    String     @db.VarChar(9)
+  phuong_tien   String     @db.VarChar(255)
+  bien_so_xe    String     @db.VarChar(255)
   gom_don       gom_don[]
   nguoi_dung    nguoi_dung @relation(fields: [ma_nguoi_dung], references: [ma_nguoi_dung], map: "fk_shipper_nguoidung")
 
@@ -284,10 +269,10 @@ model shipper {
 
 model thanh_toan {
   ma_thanh_toan         String     @id @db.VarChar(10)
-  hinh_thuc_thanh_toan  String     @db.VarChar(50)
+  hinh_thuc_thanh_toan  String     @db.VarChar(255)
   so_tien_thanh_toan    Int
-  tai_khoan_thanh_toan  String     @db.VarChar(20)
+  tai_khoan_thanh_toan  String     @db.VarChar(255)
   thoi_gian_thanh_toan  DateTime   @db.DateTime(0)
-  tinh_trang_thanh_toan String     @db.VarChar(50)
+  tinh_trang_thanh_toan String     @db.VarChar(255)
   don_hang              don_hang[]
 }

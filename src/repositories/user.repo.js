@@ -1,4 +1,3 @@
-// src/repositories/user.repo.js
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -39,7 +38,7 @@ async function createUserWithRole(payload) {
         ten_dang_nhap,
         ten_nguoi_dung,
         mat_khau,
-        vai_tro: role, // 'nguoi_mua' | 'shipper' | 'gian_hang'
+        vai_tro: role,
         gioi_tinh: gioi_tinh || "M",
         so_tai_khoan: so_tai_khoan || "",
         ngan_hang: ngan_hang || "",
@@ -68,22 +67,47 @@ async function createUserWithRole(payload) {
         },
       });
     } else if (role === "gian_hang") {
-      if (!ten_gian_hang || !ma_cho || !ma_quan_ly || !vi_tri) {
-        throw new Error(
-          "Thiếu thông tin bắt buộc cho gian_hang (ten_gian_hang, ma_cho, ma_quan_ly, vi_tri)"
+      if (!ten_gian_hang || !ma_cho || !vi_tri) {
+        const e = new Error(
+          "Thiếu thông tin bắt buộc cho gian_hang (ten_gian_hang, ma_cho, vi_tri)"
         );
+        e.status = 400;
+        throw e;
       }
+
+      const cho = await tx.cho_table.findFirst({ where: { ma_cho } });
+      if (!cho) {
+        const e = new Error("ma_cho không tồn tại");
+        e.status = 400;
+        throw e;
+      }
+
+      if (
+        typeof ma_quan_ly !== "undefined" &&
+        ma_quan_ly !== null &&
+        ma_quan_ly !== ""
+      ) {
+        const ql = await tx.quan_ly_cho.findFirst({ where: { ma_quan_ly } });
+        if (!ql) {
+          const e = new Error("ma_quan_ly không tồn tại");
+          e.status = 400;
+          throw e;
+        }
+      }
+
+      const maGH = await genId(8, "GH");
+
       await tx.gian_hang.create({
         data: {
-          ma_gian_hang: await genId(8, "GH"),
+          ma_gian_hang: maGH,
           ten_gian_hang,
-          ma_cho,
-          ma_quan_ly,
           vi_tri,
           hinh_anh: null,
           danh_gia_tb: null,
           ngay_dang_ky: new Date(),
-          ma_nguoi_dung: user.ma_nguoi_dung,
+          nguoi_dung: { connect: { ma_nguoi_dung: user.ma_nguoi_dung } },
+          cho_table: { connect: { ma_cho } },
+          quan_ly_cho: { connect: { ma_quan_ly } },
         },
       });
     }

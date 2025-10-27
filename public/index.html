@@ -1,81 +1,626 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Online Market API</title>
-  <style>
-    :root { --bg:#0f172a; --card:#0b1224; --muted:#94a3b8; --brand:#60a5fa; }
-    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;background:linear-gradient(180deg,#0b1224,#0f172a);color:#e2e8f0}
-    a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline}
-    .wrap{max-width:980px;margin:0 auto;padding:32px 20px}
-    header{text-align:center;margin:10px 0 24px}
-    h1{font-size:28px;margin:0 0 4px} .subtitle{color:var(--muted);font-size:14px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
-    .card{background:var(--card);border:1px solid #1e293b;border-radius:12px;padding:16px}
-    .card h3{margin:0 0 8px;font-size:16px;color:#cbd5e1}
-    .ep{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid #1e293b}
-    .ep:first-of-type{border-top:none}
-    .method{font:600 12px/1 monospace;background:#1e293b;color:#93c5fd;padding:4px 6px;border-radius:6px;min-width:44px;text-align:center}
-    .path{font:500 12px/1.4 ui-monospace,Consolas,Monaco,monospace;color:#cbd5e1}
-    .desc{color:var(--muted);font-size:12px;margin-left:52px}
-    footer{margin-top:28px;text-align:center;color:var(--muted);font-size:12px}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Online Market API</h1>
-      
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Market API</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      /* Market Animation */
+      .market-animation {
+        position: relative;
+        height: 300px;
+        margin: 4rem auto;
+        max-width: 800px;
+      }
 
-    <section class="grid">
-      <div class="card">
-        <h3>Foods</h3>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/foods" target="_blank">/api/foods</a></div>
-        <div class="desc">Danh sách món ăn (phân trang)</div>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/foods/search?keyword=bánh" target="_blank">/api/foods/search?keyword=bánh</a></div>
-        <div class="desc">Tìm kiếm theo keyword, category, difficulty</div>
+      .market-stall {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+      }
+
+      .stall-roof {
+        width: 200px;
+        height: 100px;
+        background: #8b5cf6;
+        clip-path: polygon(0% 100%, 5% 0%, 95% 0%, 100% 100%);
+        position: relative;
+        left: -20px;
+      }
+
+      .stall-stand {
+        background: #d1d5db;
+        width: 240px;
+        height: 20px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 10px;
+      }
+
+      .product {
+        font-size: 1.5rem;
+        animation: bounce 2s infinite;
+        animation-delay: var(--delay);
+        transform-origin: bottom;
+      }
+
+      .market-vendor,
+      .market-customer {
+        position: absolute;
+        bottom: 70px;
+        z-index: 3;
+      }
+
+      .market-vendor {
+        left: 30%;
+        transform: translateX(-50%);
+      }
+
+      .market-customer {
+        right: 20%;
+        transform: translateX(50%);
+      }
+
+      .vendor-head,
+      .customer-head {
+        width: 60px;
+        height: 60px;
+        background: #f3a683;
+        border-radius: 50%;
+        position: relative;
+        z-index: 2;
+      }
+
+      .vendor-body {
+        width: 80px;
+        height: 100px;
+        background: #4f46e5;
+        position: relative;
+        top: -20px;
+        left: -10px;
+        border-radius: 20px 20px 0 0;
+      }
+
+      .vendor-arm {
+        position: absolute;
+        width: 20px;
+        height: 60px;
+        background: #4f46e5;
+        top: 50px;
+        z-index: 1;
+      }
+
+      .vendor-arm.left {
+        left: -15px;
+        transform: rotate(30deg);
+        transform-origin: top right;
+        animation: waveLeft 2s infinite;
+      }
+
+      .vendor-arm.right {
+        right: -15px;
+        transform: rotate(-30deg);
+        transform-origin: top left;
+        animation: waveRight 2s infinite 0.5s;
+      }
+
+      .customer-bag {
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 5px;
+      }
+
+      .item {
+        font-size: 1.2rem;
+        animation: float 3s infinite;
+        animation-delay: calc(var(--i) * 0.2s);
+      }
+
+      .eye {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #2d3436;
+        border-radius: 50%;
+        top: 25px;
+      }
+
+      .eye.left {
+        left: 20px;
+      }
+      .eye.right {
+        right: 20px;
+      }
+
+      .smile {
+        position: absolute;
+        width: 30px;
+        height: 15px;
+        border-bottom: 3px solid #2d3436;
+        border-radius: 0 0 20px 20px;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .mouth {
+        position: absolute;
+        width: 20px;
+        height: 10px;
+        border-bottom: 3px solid #2d3436;
+        border-radius: 0 0 10px 10px;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 4rem 0;
+      }
+
+      .feature-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        border-color: var(--primary);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        animation: bounce 2s infinite;
+      }
+
+      .feature-card h3 {
+        color: #e2e8f0;
+        margin-bottom: 0.75rem;
+      }
+
+      .feature-card p {
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      @keyframes waveLeft {
+        0%,
+        100% {
+          transform: rotate(30deg);
+        }
+        50% {
+          transform: rotate(10deg);
+        }
+      }
+
+      @keyframes waveRight {
+        0%,
+        100% {
+          transform: rotate(-30deg);
+        }
+        50% {
+          transform: rotate(-10deg);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      :root {
+        --primary: #4f46e5;
+        --primary-light: #6366f1;
+        --dark: #0f172a;
+        --dark-light: #1e293b;
+        --light: #f8fafc;
+        --muted: #94a3b8;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --border: #334155;
+        --card-bg: rgba(15, 23, 42, 0.5);
+        --card-hover: rgba(30, 41, 59, 0.7);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: var(--light);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeInDown 1s ease;
+      }
+
+      .logo {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        background: linear-gradient(45deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: bounce 2s infinite;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(to right, #e2e8f0, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        font-weight: 800;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        transform: translateY(20px);
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards;
+      }
+
+      .card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        border-color: var(--primary);
+      }
+
+      .card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+
+      .card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+        color: #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card h3::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--primary);
+        border-radius: 50%;
+      }
+
+      .ep {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s ease;
+      }
+
+      .ep:last-child {
+        border-bottom: none;
+      }
+
+      .ep:hover {
+        background: var(--card-hover);
+        padding-left: 0.5rem;
+        border-radius: 6px;
+      }
+
+      .method {
+        font-family: "Fira Code", monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        text-transform: uppercase;
+        min-width: 64px;
+        text-align: center;
+      }
+
+      .get {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+      }
+      .post {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+      }
+      .put {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+      }
+      .delete {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+      }
+
+      .path {
+        font-family: "Fira Code", monospace;
+        font-size: 0.85rem;
+        color: #cbd5e1;
+        word-break: break-all;
+      }
+
+      .desc {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        margin-left: 0.5rem;
+        line-height: 1.5;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        padding: 1.5rem 0;
+        border-top: 1px solid var(--border);
+      }
+
+      .btn {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        margin: 0 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--light);
+      }
+
+      .btn-outline:hover {
+        background: var(--dark-light);
+        border-color: var(--primary);
+        color: var(--light);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1.5rem 1rem;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn {
+          width: 100%;
+          max-width: 280px;
+          margin: 0.25rem 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="animate__animated animate__fadeInDown">
+        <div class="logo">🛍️</div>
+        <h1>Online Market API</h1>
+        <p class="subtitle">
+          Powering your online marketplace with a robust and scalable API
+        </p>
+
+        <div class="btn-group">
+          <a href="/docs" class="btn">API Documentation</a>
+          <a
+            href="https://github.com/iamwind-dev/api_e_commerce"
+            target="_blank"
+            class="btn btn-outline"
+          >
+            <span>GitHub Repository</span>
+          </a>
+        </div>
+      </header>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">🛍️</div>
+          <h3>Đa dạng gian hàng</h3>
+          <p>Hàng ngàn sản phẩm tươi ngon từ các nhà cung cấp uy tín</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🚚</div>
+          <h3>Giao hàng nhanh</h3>
+          <p>Nhận hàng trong vòng 2 giờ với dịch vụ giao hàng tận nơi</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>Giá cả hợp lý</h3>
+          <p>Giá cả cạnh tranh cùng nhiều ưu đãi hấp dẫn mỗi tuần</p>
+        </div>
       </div>
 
-      <div class="card">
-        <h3>Ingredients</h3>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/ingredients" target="_blank">/api/ingredients</a></div>
-        <div class="desc">Danh sách nguyên liệu</div>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/ingredients/search?keyword=thịt" target="_blank">/api/ingredients/search?keyword=thịt</a></div>
-        <div class="desc">Tìm kiếm + filter: type, price, season, availability</div>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/ingredients/stats/summary" target="_blank">/api/ingredients/stats/summary</a></div>
-        <div class="desc">Thống kê tổng quan</div>
-      </div>
+      <footer class="animate__animated animate__fadeIn">
+        <div>© 2025 Online Market API. Made with ❤️ by <b>DUETeam</b></div>
+        <div style="margin-top: 0.5rem; font-size: 0.8rem">
+          <a
+            href="https://github.com/iamwind-dev/api_e_commerce"
+            target="_blank"
+            style="color: var(--muted); text-decoration: none"
+          >
+            View on GitHub
+          </a>
+        </div>
+      </footer>
+    </div>
 
-      <div class="card">
-        <h3>Categories</h3>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/categories" target="_blank">/api/categories</a></div>
-        <div class="desc">Danh sách danh mục</div>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/api/categories/search?keyword=ăn vặt" target="_blank">/api/categories/search?keyword=ăn vặt</a></div>
-        <div class="desc">Tìm kiếm theo tên</div>
-      </div>
+    <script>
+      // Add animation on scroll
+      document.addEventListener("DOMContentLoaded", () => {
+        const cards = document.querySelectorAll(".card");
 
-      <div class="card">
-        <h3>Auth</h3>
-        <div class="ep"><span class="method">POST</span><span class="path">/api/auth/register</span></div>
-        <div class="desc">Đăng ký</div>
-        <div class="ep"><span class="method">POST</span><span class="path">/api/auth/login</span></div>
-        <div class="desc">Đăng nhập</div>
-      </div>
-    </section>
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.style.opacity = "1";
+                entry.target.style.transform = "translateY(0)";
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
 
-    <section class="grid">
-      <div class="card">
-        <h3>System</h3>
-        <div class="ep"><span class="method">GET</span><a class="path" href="/health" target="_blank">/health</a></div>
-        <div class="desc">Health check</div>
-      </div>
-    </section>
+        cards.forEach((card) => {
+          observer.observe(card);
+        });
 
-    <footer>
-      <div>Made with ❤️ by WinD • <a href="https://github.com/iamwind-dev/api_e_commerce" target="_blank">GitHub</a></div>
-    </footer>
-  </div>
-</body>
+        // Add hover effect to cards
+        cards.forEach((card) => {
+          card.addEventListener("mouseenter", () => {
+            card.style.transform = "translateY(-5px)";
+            card.style.boxShadow = "0 10px 25px -5px rgba(0, 0, 0, 0.3)";
+            card.style.borderColor = "var(--primary)";
+          });
+
+          card.addEventListener("mouseleave", () => {
+            card.style.transform = "translateY(0)";
+            card.style.boxShadow = "none";
+            card.style.borderColor = "var(--border)";
+          });
+        });
+      });
+    </script>
+  </body>
 </html>

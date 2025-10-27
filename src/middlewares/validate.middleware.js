@@ -2,9 +2,34 @@ module.exports =
   (schema = {}) =>
   (req, res, next) => {
     try {
-      if (schema.body) req.body = schema.body.parse(req.body);
-      if (schema.query) req.query = schema.query.parse(req.query);
-      if (schema.params) req.params = schema.params.parse(req.params);
+      const handle = (s, valueKey) => {
+        if (!s) return;
+        if (typeof s.parse === "function") {
+          req[valueKey] = s.parse(req[valueKey]);
+          return;
+        }
+        if (typeof s.validate === "function") {
+          const { error, value } = s.validate(req[valueKey], {
+            abortEarly: false,
+            stripUnknown: true,
+            convert: true,
+          });
+          if (error) {
+            throw {
+              errors: error.details?.map((d) => ({
+                message: d.message,
+                path: d.path,
+              })) || [{ message: error.message }],
+            };
+          }
+          req[valueKey] = value;
+          return;
+        }
+      };
+
+      handle(schema.body, "body");
+      handle(schema.query, "query");
+      handle(schema.params, "params");
       next();
     } catch (e) {
       const errors = e?.errors || [{ message: e.message }];

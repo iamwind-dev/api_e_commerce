@@ -13,8 +13,16 @@ const register = Joi.object({
   role: Joi.string().valid("nguoi_mua", "shipper", "gian_hang").required(),
 
   gioi_tinh: Joi.string().valid("M", "F").optional(),
-  so_tai_khoan: Joi.string().allow("", null),
-  ngan_hang: Joi.string().allow("", null),
+  so_tai_khoan: Joi.when("role", {
+    is: Joi.valid("shipper", "gian_hang"),
+    then: Joi.string().min(6).required(),
+    otherwise: Joi.string().allow("", null),
+  }),
+  ngan_hang: Joi.when("role", {
+    is: Joi.valid("shipper", "gian_hang"),
+    then: Joi.string().min(2).required(),
+    otherwise: Joi.string().allow("", null),
+  }),
   sdt: Joi.string().allow("", null),
   dia_chi: Joi.string().allow("", null),
 
@@ -44,6 +52,7 @@ const register = Joi.object({
     then: Joi.string().required(),
     otherwise: Joi.forbidden(),
   }),
+
   vi_tri: Joi.when("role", {
     is: "gian_hang",
     then: Joi.string().required(),

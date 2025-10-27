@@ -57,6 +57,6 @@ app.use((err, _req, res, _next) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
+  console.log(`🚀 Server started at http://localhost:${PORT}`);
   console.log(`📝 ENV: ${process.env.NODE_ENV || "development"}`);
 });

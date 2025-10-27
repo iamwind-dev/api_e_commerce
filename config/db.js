@@ -1,5 +1,5 @@
 // config/db.js
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 
 let prisma;
 if (process.env.NODE_ENV === "production") {
@@ -10,7 +10,6 @@ if (process.env.NODE_ENV === "production") {
 }
 
 async function connectDB() {
-  // ping DB để chắc kết nối ok
   await prisma.$queryRaw`SELECT 1`;
   console.log("✅ Connected to MySQL (Cloud SQL) via Prisma");
 }

@@ -1,6 +1,5 @@
-// src/controllers/auth.controller.js
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+const { hashPassword, comparePassword } = require("../utils/password");
 const {
   createUserWithRole,
   findUserByUsername,
@@ -44,7 +43,7 @@ exports.register = async (req, res) => {
     if (existed)
       return res.status(409).json({ message: "ten_dang_nhap đã tồn tại" });
 
-    const hashed = await bcrypt.hash(mat_khau, 10);
+    const hashed = await hashPassword(mat_khau);
 
     const data = await createUserWithRole({
       ten_dang_nhap,
@@ -91,7 +90,8 @@ exports.login = async (req, res) => {
     if (!user)
       return res.status(401).json({ message: "Sai thông tin đăng nhập" });
 
-    const ok = await bcrypt.compare(mat_khau, user.mat_khau);
+    const ok = await comparePassword(mat_khau, user.mat_khau);
+
     if (!ok)
       return res.status(401).json({ message: "Sai thông tin đăng nhập" });
 
